@@ -19,14 +19,15 @@ export default function InstallButton() {
     await installPrompt.prompt();
   };
 
-  // This is the key: only render if the browser has sent the install prompt.
-  if (!installPrompt) {
-    return null;
-  }
+  const isInstallable = !!installPrompt;
 
   return (
-    <Button onClick={handleInstallClick} className="px-6 py-3 text-base w-full sm:w-auto">
-      Install App
+    <Button 
+      onClick={handleInstallClick} 
+      disabled={!isInstallable}
+      className="px-6 py-3 text-base w-full sm:w-auto"
+    >
+      {isInstallable ? "Install App" : "Installation not available on this platform"}
     </Button>
   );
 }

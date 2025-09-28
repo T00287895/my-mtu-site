@@ -69,9 +69,9 @@ const Page = () => {
         <div className="p-4">
             {/* Mobile View */}
             <div className="md:hidden">
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex justify-between items-center mb-8">
                     <Button onClick={handlePrevDay} className="px-4 py-2 text-base">Back</Button>
-                    <div className="text-center">
+                    <div className="text-center px-4 text-nowrap">
                         <h2 className="text-xl font-bold">{displayedDay.charAt(0).toUpperCase() + displayedDay.slice(1)}</h2>
                         <span className="text-sm text-gray-500">{params.id.replace(/_/g, ' ')}</span>
                     </div>
@@ -99,7 +99,7 @@ const Page = () => {
 
             {/* Desktop View */}
             <div className="hidden md:block">
-                <h1 className="text-2xl font-bold mb-4 text-center">{params.id.replace(/_/g, ' ')}</h1>
+                <h1 className="text-2xl font-bold mb-8 text-center">{params.id.replace(/_/g, ' ')}</h1>
                 <table className="w-full border-collapse border border-gray-400">
                     <thead>
                         <tr>
@@ -137,8 +137,8 @@ const Page = () => {
             </div>
 
             <div className="flex flex-col items-center justify-center gap-4 mt-8">
-                <InstallButton />
                 <PwaInstructions />
+                <InstallButton />
             </div>
         </div>
     );
