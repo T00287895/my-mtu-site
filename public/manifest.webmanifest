@@ -1,8 +1,8 @@
 {
-  "name": "Screen-Sage",
-  "short_name": "ScreenSage",
-  "description": "PWA с офлайн, шорткатами и шарингом",
-  "lang": "ru",
+  "name": "My MTU Schedule",
+  "short_name": "My MTU",
+  "description": "A simple PWA for viewing schedules with offline support.",
+  "lang": "en",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
@@ -15,8 +15,8 @@
     { "src": "/icons/app-icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "Расписание", "short_name": "Расписание", "url": "/schedule?via=shortcut", "icons": [{ "src": "/icons/app-icon-192.png", "sizes": "192x192", "type": "image/png" }] },
-    { "name": "Загрузки", "short_name": "Загрузки", "url": "/upload?via=shortcut", "icons": [{ "src": "/icons/app-icon-192.png", "sizes": "192x192", "type": "image/png" }] }
+    { "name": "Schedule", "short_name": "Schedule", "url": "/schedule?via=shortcut", "icons": [{ "src": "/icons/app-icon-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "Uploads", "short_name": "Uploads", "url": "/upload?via=shortcut", "icons": [{ "src": "/icons/app-icon-192.png", "sizes": "192x192", "type": "image/png" }] }
   ],
   "display_override": ["window-controls-overlay", "standalone"],
   "protocol_handlers": [{ "protocol": "web+screensage", "url": "/open?url=%s" }],

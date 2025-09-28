@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Screen-Sage",
-  description: "PWA demo",
+  title: "My MTU Schedule",
+  description: "A simple PWA for viewing schedules.",
 };
+
+const CACHE_VERSION = "2"; // Increment this to force-refresh icons
 
 export default function RootLayout({
   children,
@@ -12,17 +14,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru">
+    <html lang="en">
       <head>
-        <link rel="manifest" href="/manifest.webmanifest" />
+        <link rel="icon" href={`/favicon.ico?v=${CACHE_VERSION}`} sizes="any" />
+        <link rel="manifest" href={`/manifest.webmanifest?v=${CACHE_VERSION}`} />
         <meta name="theme-color" content="#111111" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta
           name="apple-mobile-web-app-status-bar-style"
           content="black-translucent"
         />
-        {/* используем ту же прозрачную иконку; iOS сам подложит фон */}
-        <link rel="apple-touch-icon" href="/icons/app-icon-192.png" />
+        <link rel="apple-touch-icon" href={`/icons/app-icon-192-solid.png?v=${CACHE_VERSION}`} />
+        <link rel="icon" type="image/png" sizes="32x32" href={`/icons/app-icon-192.png?v=${CACHE_VERSION}`} />
+        <link rel="icon" type="image/png" sizes="16x16" href={`/icons/app-icon-192.png?v=${CACHE_VERSION}`} />
       </head>
       <body>
         {children}
