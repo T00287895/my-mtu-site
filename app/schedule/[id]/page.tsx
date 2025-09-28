@@ -1,26 +1,27 @@
 'use client';
 
-import {useEffect, useState} from "react";
-import {ScheduleI} from "@/interface";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { ScheduleI } from "@/interface";
 
 const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const;
 const times = Array.from({ length: 9 }, (_, i) => 9 + i); // 9–17
 
-const Page = ({ params }: { params: { id: string } }) => {
+const Page = () => {
+    const params = useParams<{ id: string }>();
     const [scheduleData, setScheduleData] = useState<ScheduleI | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [currentDay, setCurrentDay] = useState<string | null>(null);
     const [currentHour, setCurrentHour] = useState<number | null>(null);
-    const [displayedDayIndex, setDisplayedDayIndex] = useState(new Date().getDay() - 1);
+    const [displayedDayIndex, setDisplayedDayIndex] = useState(() => (new Date().getDay() + 6) % 7);
 
     useEffect(() => {
         const fetchSchedule = async () => {
+            if (!params.id) return;
             try {
                 const response = await fetch(`https://raw.githubusercontent.com/T00287895/schedule/refs/heads/main/${params.id}.json`);
-                if (!response.ok) {
-                    throw new Error("Failed to fetch schedule data");
-                }
+                if (!response.ok) throw new Error("Failed to fetch schedule data");
                 const data = await response.json();
                 setScheduleData(data);
             } catch (error: any) {
@@ -29,65 +30,57 @@ const Page = ({ params }: { params: { id: string } }) => {
                 setLoading(false);
             }
         };
-
         fetchSchedule();
     }, [params.id]);
 
     useEffect(() => {
         const updateCurrentTime = () => {
             const now = new Date();
-            const dayIndex = now.getDay();
-            const hour = now.getHours();
             const daysOfWeek = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-            const currentDayName = daysOfWeek[dayIndex];
-            const scheduleDay = days.find(d => d === currentDayName);
-
-            setCurrentDay(scheduleDay || null);
-            setCurrentHour(hour);
+            setCurrentDay(daysOfWeek[now.getDay()]);
+            setCurrentHour(now.getHours());
         };
-
         updateCurrentTime();
-        const intervalId = setInterval(updateCurrentTime, 1000);
-
+        const intervalId = setInterval(updateCurrentTime, 60000); // Update every minute
         return () => clearInterval(intervalId);
     }, []);
 
-    const handleNextDay = () => {
-        setDisplayedDayIndex((prevIndex) => (prevIndex + 1) % 7);
-    };
+    const handleNextDay = () => setDisplayedDayIndex((prev) => (prev + 1) % 7);
+    const handlePrevDay = () => setDisplayedDayIndex((prev) => (prev - 1 + 7) % 7);
 
-    const handlePrevDay = () => {
-        setDisplayedDayIndex((prevIndex) => (prevIndex - 1 + 7) % 7);
-    };
-
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error}</div>;
-    if (!scheduleData) return <div>No schedule data found.</div>;
+    if (loading) return <div className="p-4">Loading...</div>;
+    if (error) return <div className="p-4 text-red-600">Error: {error}</div>;
+    if (!scheduleData) return <div className="p-4">No schedule data found.</div>;
 
     const displayedDay = days[displayedDayIndex];
     const classesForDisplayedDay = scheduleData[displayedDay];
 
     const getLessonRowStyle = (day: string, startAt: number, endAt: number) => {
-        if (currentHour === null) return {};
-        return currentDay === day && currentHour >= startAt && currentHour < endAt ? { backgroundColor: "#90ee90" } : {};
+        if (currentDay === day && currentHour !== null && currentHour >= startAt && currentHour < endAt) {
+            return { backgroundColor: "#90ee90" }; // Light green accent
+        }
+        return {};
     };
 
     return (
-        <div>
-            <div className="max-[1100px]:block hidden">
-                <div className="flex justify-between items-center p-4">
-                    <button onClick={handlePrevDay} className="px-4 py-2 bg-gray-200 rounded">Back</button>
-                    <h2 className="text-xl font-bold">{displayedDay.charAt(0).toUpperCase() + displayedDay.slice(1)}</h2>
-                    <button onClick={handleNextDay} className="px-4 py-2 bg-gray-200 rounded">Next</button>
+        <div className="p-4">
+            {/* Mobile View */}
+            <div className="md:hidden">
+                <div className="flex justify-between items-center mb-4">
+                    <button onClick={handlePrevDay} className="px-4 py-2 bg-gray-200">Back</button>
+                    <div className="text-center">
+                        <h2 className="text-xl font-bold">{displayedDay.charAt(0).toUpperCase() + displayedDay.slice(1)}</h2>
+                        <span className="text-sm text-gray-500">{params.id.replace(/_/g, ' ')}</span>
+                    </div>
+                    <button onClick={handleNextDay} className="px-4 py-2 bg-gray-200">Next</button>
                 </div>
-                <div className="p-4">
+                <div className="space-y-2">
                     {times.map((hour) => {
                         const match = classesForDisplayedDay.find(c => c.startAt === hour);
                         if (match) {
-                            const lessonStyle = getLessonRowStyle(displayedDay, match.startAt, match.endAt);
                             return (
-                                <div key={hour} className="mb-4 p-4 border" style={lessonStyle}>
-                                    <div className="font-bold text-lg">{match.title}</div>
+                                <div key={hour} className="p-2 border" style={getLessonRowStyle(displayedDay, match.startAt, match.endAt)}>
+                                    <div className="font-bold">{match.title}</div>
                                     <div>{match.room}</div>
                                     <div>{match.tutor}</div>
                                     <div className="text-sm text-gray-600">{match.startAt}:00 - {match.endAt}:00</div>
@@ -96,51 +89,46 @@ const Page = ({ params }: { params: { id: string } }) => {
                         }
                         const inside = classesForDisplayedDay.some(c => c.startAt < hour && c.endAt > hour);
                         if (inside) return null;
-                        return (
-                            <div key={hour} />
-                        );
+                        return <div key={hour} className="h-10" />;
                     })}
                 </div>
             </div>
 
-            <div className="hidden min-[1100px]:block">
-                <table className="w-full text-sm text-left text-gray-900 dark:text-gray-400 shadow-lg rounded-lg">
-                    <thead className="text-xs text-black uppercase dark:text-gray-400">
-                    <tr>
-                        <th scope="col" className="px-6 py-3">Time</th>
-                        {days.map((day) => (
-                            <th scope="col" className="px-6 py-3" key={day}>
-                                {day.charAt(0).toUpperCase() + day.slice(1)}
-                            </th>
-                        ))}
-                    </tr>
+            {/* Desktop View */}
+            <div className="hidden md:block">
+                <h1 className="text-2xl font-bold mb-4 text-center">{params.id.replace(/_/g, ' ')}</h1>
+                <table className="w-full border-collapse border border-gray-400">
+                    <thead>
+                        <tr>
+                            <th className="border border-gray-300 p-2">Time</th>
+                            {days.map((day) => (
+                                <th className="border border-gray-300 p-2" key={day}>
+                                    {day.charAt(0).toUpperCase() + day.slice(1)}
+                                </th>
+                            ))}
+                        </tr>
                     </thead>
                     <tbody>
-                    {times.map((hour) => (
-                        <tr className="dark:border-gray-200" key={hour}>
-                            <td className="px-6 py-4 bg-white border">{`${hour}:00`}</td>
-                            {days.map((day) => {
-                                const classes = scheduleData[day];
-                                const match = classes.find(c => c.startAt === hour);
-
-                                if (match) {
-                                    const lessonStyle = getLessonRowStyle(day, match.startAt, match.endAt);
-                                    return (
-                                        <td key={day} rowSpan={match.endAt - match.startAt} className="px-6 py-4 bg-white border" style={lessonStyle}>
-                                            <strong>{match.title}</strong><br />
-                                            <em>{match.room}</em><br />
-                                            <small>{match.tutor}</small>
-                                        </td>
-                                    );
-                                }
-
-                                const inside = classes.some(c => c.startAt < hour && c.endAt > hour);
-                                if (inside) return null;
-
-                                return <td key={day} className="px-6 py-4 bg-white border"></td>;
-                            })}
-                        </tr>
-                    ))}
+                        {times.map((hour) => (
+                            <tr key={hour}>
+                                <td className="border border-gray-300 p-2 font-mono">{`${hour}:00`}</td>
+                                {days.map((day) => {
+                                    const match = scheduleData[day].find(c => c.startAt === hour);
+                                    if (match) {
+                                        return (
+                                            <td key={day} rowSpan={match.endAt - match.startAt} className="border border-gray-300 p-2 align-top" style={getLessonRowStyle(day, match.startAt, match.endAt)}>
+                                                <strong>{match.title}</strong><br />
+                                                <em>{match.room}</em><br />
+                                                <small>{match.tutor}</small>
+                                            </td>
+                                        );
+                                    }
+                                    const inside = scheduleData[day].some(c => c.startAt < hour && c.endAt > hour);
+                                    if (inside) return null;
+                                    return <td key={day} className="border border-gray-300 p-2"></td>;
+                                })}
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
