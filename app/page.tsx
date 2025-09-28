@@ -1,3 +1,5 @@
+import InstallButton from "@/app/components/InstallButton";
+import PwaInstructions from "@/app/components/PwaInstructions";
 import Button from "./components/Button";
 
 interface GitHubFile {
@@ -26,12 +28,14 @@ export default async function Home() {
   return (
     <main className="flex min-h-screen items-start justify-center bg-white p-4 pt-12 lg:items-center lg:pt-4">
       <div className="w-full max-w-md">
+        
         <header className="mb-6 text-center">
           <h1 className="text-2xl font-semibold text-black">
             Available Schedules
           </h1>
         </header>
-        <div className="flex flex-col space-y-2">
+
+        <div className="flex flex-col space-y-2 mb-8">
           {schedules.length > 0 ? (
             schedules.map((scheduleId) => (
               <Button key={scheduleId} href={`/schedule/${scheduleId}`}>
@@ -44,7 +48,14 @@ export default async function Home() {
             </p>
           )}
         </div>
+
+        <div className="flex flex-col items-center justify-center gap-4 mt-4">
+          <PwaInstructions />
+          <InstallButton />
+        </div>
+
       </div>
+
     </main>
   );
 }
