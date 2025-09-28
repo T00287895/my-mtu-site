@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { ScheduleI } from "@/interface";
+import Button from "../../components/Button";
+import InstallButton from "../../components/InstallButton";
+import PwaInstructions from "../../components/PwaInstructions";
 
 const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const;
 const times = Array.from({ length: 9 }, (_, i) => 9 + i); // 9–17
@@ -41,41 +44,41 @@ const Page = () => {
             setCurrentHour(now.getHours());
         };
         updateCurrentTime();
-        const intervalId = setInterval(updateCurrentTime, 60000); // Update every minute
+        const intervalId = setInterval(updateCurrentTime, 60000);
         return () => clearInterval(intervalId);
     }, []);
 
     const handleNextDay = () => setDisplayedDayIndex((prev) => (prev + 1) % 7);
     const handlePrevDay = () => setDisplayedDayIndex((prev) => (prev - 1 + 7) % 7);
 
-    if (loading) return <div className="p-4">Loading...</div>;
-    if (error) return <div className="p-4 text-red-600">Error: {error}</div>;
-    if (!scheduleData) return <div className="p-4">No schedule data found.</div>;
+    if (loading) return <div className="p-4 text-center">Loading...</div>;
+    if (error) return <div className="p-4 text-red-600 text-center">Error: {error}</div>;
+    if (!scheduleData) return <div className="p-4 text-center">No schedule data found.</div>;
 
     const displayedDay = days[displayedDayIndex];
     const classesForDisplayedDay = scheduleData[displayedDay];
 
     const getLessonRowStyle = (day: string, startAt: number, endAt: number) => {
         if (currentDay === day && currentHour !== null && currentHour >= startAt && currentHour < endAt) {
-            return { backgroundColor: "#90ee90" }; // Light green accent
+            return { backgroundColor: "#90ee90" };
         }
         return {};
     };
-
+    
     return (
         <div className="p-4">
             {/* Mobile View */}
             <div className="md:hidden">
                 <div className="flex justify-between items-center mb-4">
-                    <button onClick={handlePrevDay} className="px-4 py-2 bg-gray-200">Back</button>
+                    <Button onClick={handlePrevDay} className="px-4 py-2 text-base">Back</Button>
                     <div className="text-center">
                         <h2 className="text-xl font-bold">{displayedDay.charAt(0).toUpperCase() + displayedDay.slice(1)}</h2>
                         <span className="text-sm text-gray-500">{params.id.replace(/_/g, ' ')}</span>
                     </div>
-                    <button onClick={handleNextDay} className="px-4 py-2 bg-gray-200">Next</button>
+                    <Button onClick={handleNextDay} className="px-4 py-2 text-base">Next</Button>
                 </div>
                 <div className="space-y-2">
-                    {times.map((hour) => {
+                    {classesForDisplayedDay?.length > 0 ? times.map((hour) => {
                         const match = classesForDisplayedDay.find(c => c.startAt === hour);
                         if (match) {
                             return (
@@ -90,7 +93,7 @@ const Page = () => {
                         const inside = classesForDisplayedDay.some(c => c.startAt < hour && c.endAt > hour);
                         if (inside) return null;
                         return <div key={hour} className="h-10" />;
-                    })}
+                    }) : <div className="text-center text-gray-500 pt-10">No classes scheduled for this day.</div>}
                 </div>
             </div>
 
@@ -131,6 +134,11 @@ const Page = () => {
                         ))}
                     </tbody>
                 </table>
+            </div>
+
+            <div className="flex flex-col items-center justify-center gap-4 mt-8">
+                <InstallButton />
+                <PwaInstructions />
             </div>
         </div>
     );

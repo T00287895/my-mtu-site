@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Button from "./components/Button";
 
 interface GitHubFile {
   name: string;
@@ -34,13 +34,9 @@ export default async function Home() {
         <div className="flex flex-col space-y-2">
           {schedules.length > 0 ? (
             schedules.map((scheduleId) => (
-              <Link
-                key={scheduleId}
-                href={`/schedule/${scheduleId}`}
-                className="block rounded-md bg-gray-100 p-4 text-lg text-black transition-colors hover:bg-gray-200"
-              >
+              <Button key={scheduleId} href={`/schedule/${scheduleId}`}>
                 {scheduleId.replace(/_/g, ' ')}
-              </Link>
+              </Button>
             ))
           ) : (
             <p className="text-center text-gray-500">
