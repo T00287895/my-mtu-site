@@ -23,7 +23,7 @@ const Page = () => {
         const fetchSchedule = async () => {
             if (!params.id) return;
             try {
-                const response = await fetch(`https://raw.githubusercontent.com/T00287895/schedule/refs/heads/main/${params.id}.json`);
+                const response = await fetch(`https://raw.githubusercontent.com/T00287895/schedule/refs/heads/main/${params.id}.json`, { cache: 'no-store' });
                 if (!response.ok) throw new Error("Failed to fetch schedule data");
                 const data = await response.json();
                 setScheduleData(data);

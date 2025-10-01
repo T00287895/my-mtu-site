@@ -1,5 +1,61 @@
 /* eslint-disable no-restricted-globals */
-const CACHE_NAME="ss-cache-v1";const CORE=["/","/manifest.webmanifest"];
-self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(CORE)));self.skipWaiting()});
-self.addEventListener("activate",e=>{e.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.map(k=>k===CACHE_NAME?null:caches.delete(k)));await self.clients.claim()})())});
-self.addEventListener("fetch",e=>{const r=e.request;if(r.method!=="GET")return;e.respondWith((async()=>{try{if(r.mode==="navigate"||(r.headers.get("accept")||"").includes("text/html")){const f=await fetch(r);const c=await caches.open(CACHE_NAME);c.put(r,f.clone());return f}const c=await caches.match(r);if(c)return c;const f=await fetch(r);const ca=await caches.open(CACHE_NAME);ca.put(r,f.clone());return f}catch{const c=await caches.match(r);if(c)return c;if(r.mode==="navigate")return caches.match("/")||Response.error();return Response.error()}})())});
+const CACHE_NAME = "ss-cache-v1";
+const CORE = ["/", "/manifest.webmanifest"];
+
+self.addEventListener("install", e => {
+    e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(CORE)));
+    self.skipWaiting()
+});
+
+self.addEventListener("activate", e => {
+    e.waitUntil((async () => {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => k === CACHE_NAME ? null : caches.delete(k)));
+        await self.clients.claim()
+    })())
+});
+
+self.addEventListener("fetch", e => {
+    const r = e.request;
+    if (r.method !== "GET") return;
+
+    const scheduleUrl = "https://raw.githubusercontent.com/T00287895/schedule/";
+
+    if (r.url.startsWith(scheduleUrl)) {
+        e.respondWith(
+            fetch(r)
+                .then(response => {
+                    if (response.ok) {
+                        caches.open(CACHE_NAME).then(cache => {
+                            cache.put(r, response.clone());
+                        });
+                    }
+                    return response;
+                })
+                .catch(() => caches.match(r))
+        );
+        return;
+    }
+
+    e.respondWith((async () => {
+        try {
+            if (r.mode === "navigate" || (r.headers.get("accept") || "").includes("text/html")) {
+                const f = await fetch(r);
+                const c = await caches.open(CACHE_NAME);
+                c.put(r, f.clone());
+                return f
+            }
+            const c = await caches.match(r);
+            if (c) return c;
+            const f = await fetch(r);
+            const ca = await caches.open(CACHE_NAME);
+            ca.put(r, f.clone());
+            return f
+        } catch {
+            const c = await caches.match(r);
+            if (c) return c;
+            if (r.mode === "navigate") return caches.match("/") || Response.error();
+            return Response.error()
+        }
+    })())
+});

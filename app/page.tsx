@@ -1,6 +1,6 @@
 import InstallButton from "@/app/components/InstallButton";
 import PwaInstructions from "@/app/components/PwaInstructions";
-import Button from "./components/Button";
+import GroupSelector from "./components/GroupSelector";
 
 interface GitHubFile {
   name: string;
@@ -31,25 +31,13 @@ export default async function Home() {
         
         <header className="mb-6 text-center">
           <h1 className="text-2xl font-semibold text-black">
-            Available Schedules
+            Select Your Group
           </h1>
         </header>
 
-        <div className="flex flex-col space-y-2 mb-8">
-          {schedules.length > 0 ? (
-            schedules.map((scheduleId) => (
-              <Button key={scheduleId} href={`/schedule/${scheduleId}`}>
-                {scheduleId.replace(/_/g, ' ')}
-              </Button>
-            ))
-          ) : (
-            <p className="text-center text-gray-500">
-              No schedules found.
-            </p>
-          )}
-        </div>
+        <GroupSelector schedules={schedules} />
 
-        <div className="flex flex-col items-center justify-center gap-4 mt-4">
+        <div className="flex flex-col items-center justify-center gap-4 mt-8">
           <PwaInstructions />
           <InstallButton />
         </div>

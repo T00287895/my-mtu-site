@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Header from "./components/Header";
 
 export const metadata: Metadata = {
   title: "My MTU Schedule",
@@ -29,6 +30,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="16x16" href={`/icons/app-icon-192.png?v=${CACHE_VERSION}`} />
       </head>
       <body>
+        <Header />
         {children}
         <script
           dangerouslySetInnerHTML={{
