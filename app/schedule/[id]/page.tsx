@@ -6,9 +6,15 @@ import { ScheduleI } from "@/interface";
 import Button from "../../components/Button";
 import InstallButton from "../../components/InstallButton";
 import PwaInstructions from "../../components/PwaInstructions";
+import Link from "next/link";
 
 const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] as const;
 const times = Array.from({ length: 9 }, (_, i) => 9 + i); // 9–17
+
+
+const titleToLink = (title: string) => {
+    return encodeURI(`https://github.com/T00287895/lectures/tree/main/${title}`)
+}
 
 const Page = () => {
     const params = useParams<{ id: string }>();
@@ -120,7 +126,13 @@ const Page = () => {
                                     if (match) {
                                         return (
                                             <td key={day} rowSpan={match.endAt - match.startAt} className="border border-gray-300 p-2 align-top" style={getLessonRowStyle(day, match.startAt, match.endAt)}>
-                                                <strong>{match.title}</strong><br />
+                                                <strong>
+                                                    {
+                                                        match?.title
+                                                            ? <Link href={titleToLink(match.title || "")} target={"_blank"}>{match.title}</Link>
+                                                            : <span>{match.title}</span>
+                                                    }
+                                                </strong><br />
                                                 <em>{match.room}</em><br />
                                                 <small>{match.tutor}</small>
                                             </td>
