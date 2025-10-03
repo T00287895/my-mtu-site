@@ -89,7 +89,13 @@ const Page = () => {
                         if (match) {
                             return (
                                 <div key={hour} className="p-2 border" style={getLessonRowStyle(displayedDay, match.startAt, match.endAt)}>
-                                    <div className="font-bold">{match.title}</div>
+                                    <div className="font-bold">
+                                        {
+                                            match?.title
+                                                ? <Link href={titleToLink(match.title || "")} target={"_blank"}>{match.title}</Link>
+                                                : <span>{match.title}</span>
+                                        }
+                                    </div>
                                     <div>{match.room}</div>
                                     <div>{match.tutor}</div>
                                     <div className="text-sm text-gray-600">{match.startAt}:00 - {match.endAt}:00</div>
